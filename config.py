@@ -12,8 +12,21 @@ class Settings:
         self.DB_USER = os.getenv("DB_USER", "postgres")
         self.DB_PASSWORD = os.getenv("DB_PASSWORD", "your_password_here")
         
-        db_url = os.getenv("DATABASE_URL")
+        # Try to get from Streamlit secrets first (for Streamlit Cloud deployment)
+        db_url = None
+        try:
+            import streamlit as st
+            if "DATABASE_URL" in st.secrets:
+                db_url = st.secrets["DATABASE_URL"]
+        except Exception:
+            pass
+            
+        # Fallback to local environment variable if not in secrets
+        if not db_url:
+            db_url = os.getenv("DATABASE_URL")
+            
         if db_url:
+            db_url = db_url.strip().strip('"').strip("'")
             # SQLAlchemy requires 'postgresql://' instead of 'postgres://'
             if db_url.startswith("postgres://"):
                 db_url = db_url.replace("postgres://", "postgresql://", 1)
