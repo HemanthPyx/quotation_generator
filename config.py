@@ -27,12 +27,13 @@ class Settings:
             
         if db_url:
             db_url = db_url.strip().strip('"').strip("'")
-            # SQLAlchemy requires 'postgresql://' instead of 'postgres://'
             if db_url.startswith("postgres://"):
-                db_url = db_url.replace("postgres://", "postgresql://", 1)
+                db_url = db_url.replace("postgres://", "postgresql+psycopg://", 1)
+            elif db_url.startswith("postgresql://"):
+                db_url = db_url.replace("postgresql://", "postgresql+psycopg://", 1)
             self.DATABASE_URL = db_url
         else:
-            self.DATABASE_URL = f"postgresql://{self.DB_USER}:{self.DB_PASSWORD}@{self.DB_HOST}:{self.DB_PORT}/{self.DB_NAME}"
+            self.DATABASE_URL = f"postgresql+psycopg://{self.DB_USER}:{self.DB_PASSWORD}@{self.DB_HOST}:{self.DB_PORT}/{self.DB_NAME}"
         
         self.STORAGE_PATH = Path(os.getenv("STORAGE_PATH", "storage"))
         self.QUOTATIONS_PATH = self.STORAGE_PATH / "quotations"
